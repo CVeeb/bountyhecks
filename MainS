@@ -1,0 +1,888 @@
+--Bounty 0.0.1--
+print("Loading BOUNTY 0.0.1")
+local Xsize = 600 * 1.2
+local YSize = 300 * 1.2
+local OMen = "Home"
+local MoveUI = false
+local CanMove = false
+local showed = false
+local playerstatsevent = game:GetService("ReplicatedStorage").Events.RetrievePlayerStats
+local statstable = playerstatsevent:InvokeServer()
+function rtsg() tab = game.ReplicatedStorage.Events.RetrievePlayerStats:InvokeServer() return tab end
+print(plr.Character.Humanoid.WalkSpeed)
+local bounty = {
+	honeycurrent = statstable.Totals.Honey,
+	Snowflakescurrent = rtsg().Eggs.Snowflake,
+	playtime = 0,
+	choosedspeed = plr.Character.Humanoid.WalkSpeed,
+	tembs = {
+		honeystart = 0,
+		Snowflakesstart = rtsg().Eggs.Snowflake,
+	},
+	toggles = {
+		Leaves = false,
+		AutoDig = false,
+		AutoSnowflakes = false,
+		ViciousDetected = false,
+		ViciousHant = false,
+	}
+}
+-- Inits
+local ts = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+local plr = game.Players.LocalPlayer
+local mouse = plr:GetMouse()
+local ui = Instance.new("ScreenGui", plr.PlayerGui)
+ui.Name = "bounty"
+
+-- UI Parts
+local frame = Instance.new("Frame", ui)
+local Corner = Instance.new("UICorner", frame)
+Corner.CornerRadius = UDim.new(0,20)
+frame.Name = "Main"
+frame.AnchorPoint = Vector2.new(0.5,0.5)
+frame.Position = UDim2.new(0,650,0,500)
+frame.BackgroundColor3 = Color3.fromRGB(15,15,15)
+frame.Size = UDim2.new(0,Xsize,0,YSize)
+frame.ZIndex = 9999999999999
+
+local Destroy = Instance.new("TextButton", frame)
+local Corner2 = Instance.new("UICorner", Destroy)
+Corner2.CornerRadius = UDim.new(0,20)
+Destroy.Text = "X"
+Destroy.TextScaled = true
+Destroy.Position = UDim2.new(0,-5,0,-5)
+Destroy.Size = UDim2.new(0,30,0,30)
+Destroy.BackgroundColor3 = Color3.fromRGB(255,77,77)
+Destroy.TextColor3 = Color3.fromRGB(245,245,245)
+Destroy.Font = Enum.Font.FredokaOne
+Destroy.Name = "Destroy"
+Destroy.AutoButtonColor = false
+
+local ShowUI = Instance.new("TextButton", frame)
+local Corner3 = Instance.new("UICorner", ShowUI)
+Corner3.CornerRadius = UDim.new(0,20)
+ShowUI.Text = "-"
+ShowUI.TextScaled = true
+ShowUI.Position = UDim2.new(0,35,0,-5)
+ShowUI.Size = UDim2.new(0,30,0,30)
+ShowUI.BackgroundColor3 = Color3.fromRGB(233,182,79)
+ShowUI.TextColor3 = Color3.fromRGB(245,245,245)
+ShowUI.Font = Enum.Font.FredokaOne
+ShowUI.Name = "ShowUI"
+ShowUI.AutoButtonColor = false
+
+local ScriptLabel = Instance.new("TextLabel", frame)
+ScriptLabel.AnchorPoint = Vector2.new(0.5,0)
+ScriptLabel.Position = UDim2.new(0.5,0,0,5)
+ScriptLabel.Size = UDim2.new(0,Xsize,0,YSize/16)
+ScriptLabel.BackgroundTransparency = 1
+ScriptLabel.TextScaled = true
+ScriptLabel.TextColor3 = Color3.fromRGB(245,245,245)
+ScriptLabel.Font = Enum.Font.FredokaOne
+ScriptLabel.Text = " • Bounty | 0.0.1 • "
+
+--Menus Frame
+local Menus = Instance.new("Frame", frame)
+local Corner5 = Instance.new("UICorner", Menus)
+Corner5.CornerRadius = UDim.new(0,20)
+Menus.Name = "Menus"
+Menus.AnchorPoint = Vector2.new(1,1)
+Menus.Position = UDim2.new(0.985,0,0.96,0)
+Menus.Size = UDim2.new(0,Xsize/4.85,0,YSize/1.2)
+Menus.BackgroundColor3 = Color3.fromRGB(22,22,22)
+Menus.BackgroundTransparency = 0
+--Buttons Menus
+local HomeB = Instance.new("TextButton", Menus)
+local Corner6 = Instance.new("UICorner", HomeB)
+Corner6.CornerRadius = UDim.new(0,15)
+HomeB.Name = "HomeB"
+HomeB.TextXAlignment = "Right"
+HomeB.AnchorPoint = Vector2.new(0.5,0.5)
+HomeB.Position = UDim2.new(0.5,0,0.07,0)
+HomeB.Size = UDim2.new(0.9,0,0,30)
+HomeB.BackgroundTransparency = 0.8
+HomeB.TextScaled = true
+HomeB.TextColor3 = Color3.fromRGB(245,245,245)
+HomeB.Font = Enum.Font.FredokaOne
+HomeB.Text = "Home • "
+HomeB.AutoButtonColor = false
+local FarmB = Instance.new("TextButton", Menus)
+local Corner6 = Instance.new("UICorner", FarmB)
+Corner6.CornerRadius = UDim.new(0,15)
+FarmB.Name = "FarmB"
+FarmB.TextXAlignment = "Right"
+FarmB.AnchorPoint = Vector2.new(0.5,0.5)
+FarmB.Position = UDim2.new(0.5,0,0.19,0)
+FarmB.Size = UDim2.new(0.9,0,0,30)
+FarmB.BackgroundTransparency = 0.8
+FarmB.TextScaled = true
+FarmB.TextColor3 = Color3.fromRGB(245,245,245)
+FarmB.Font = Enum.Font.FredokaOne
+FarmB.Text = "Farm • "
+FarmB.AutoButtonColor = false
+local HiveB = Instance.new("TextButton", Menus)
+local Corner6 = Instance.new("UICorner", HiveB)
+Corner6.CornerRadius = UDim.new(0,15)
+HiveB.Name = "HiveB"
+HiveB.TextXAlignment = "Right"
+HiveB.AnchorPoint = Vector2.new(0.5,0.5)
+HiveB.Position = UDim2.new(0.5,0,0.31,0)
+HiveB.Size = UDim2.new(0.9,0,0,30)
+HiveB.BackgroundTransparency = 0.8
+HiveB.TextScaled = true
+HiveB.TextColor3 = Color3.fromRGB(245,245,245)
+HiveB.Font = Enum.Font.FredokaOne
+HiveB.Text = "Hive • "
+HiveB.AutoButtonColor = false
+local TimersB = Instance.new("TextButton", Menus)
+local Corner9 = Instance.new("UICorner", TimersB)
+Corner9.CornerRadius = UDim.new(0,15)
+TimersB.Name = "TimersB"
+TimersB.TextXAlignment = "Right"
+TimersB.AnchorPoint = Vector2.new(0.5,0.5)
+TimersB.Position = UDim2.new(0.5,0,0.43,0)
+TimersB.Size = UDim2.new(0.9,0,0,30)
+TimersB.BackgroundTransparency = 0.8
+TimersB.TextScaled = true
+TimersB.TextColor3 = Color3.fromRGB(245,245,245)
+TimersB.Font = Enum.Font.FredokaOne
+TimersB.Text = "Timers • "
+TimersB.AutoButtonColor = false
+local CombatB = Instance.new("TextButton", Menus)
+local Corner12 = Instance.new("UICorner", CombatB)
+Corner12.CornerRadius = UDim.new(0,15)
+CombatB.Name = "CombatB"
+CombatB.TextXAlignment = "Right"
+CombatB.AnchorPoint = Vector2.new(0.5,0.5)
+CombatB.Position = UDim2.new(0.5,0,0.55,0)
+CombatB.Size = UDim2.new(0.9,0,0,30)
+CombatB.BackgroundTransparency = 0.8
+CombatB.TextScaled = true
+CombatB.TextColor3 = Color3.fromRGB(245,245,245)
+CombatB.Font = Enum.Font.FredokaOne
+CombatB.Text = "Combat • "
+CombatB.AutoButtonColor = false
+local SettingsB = Instance.new("TextButton", Menus)
+local Corner12 = Instance.new("UICorner", SettingsB)
+Corner12.CornerRadius = UDim.new(0,15)
+SettingsB.Name = "SettingsB"
+SettingsB.TextXAlignment = "Right"
+SettingsB.AnchorPoint = Vector2.new(0.5,0.5)
+SettingsB.Position = UDim2.new(0.5,0,0.67,0)
+SettingsB.Size = UDim2.new(0.9,0,0,30)
+SettingsB.BackgroundTransparency = 0.8
+SettingsB.TextScaled = true
+SettingsB.TextColor3 = Color3.fromRGB(245,245,245)
+SettingsB.Font = Enum.Font.FredokaOne
+SettingsB.Text = "Configure • "
+SettingsB.AutoButtonColor = false
+
+
+
+--Frame Functions
+local HomeF = Instance.new("Frame", frame)
+local Corner4 = Instance.new("UICorner", HomeF)
+Corner4.CornerRadius = UDim.new(0,20)
+HomeF.Name = "HomeF"
+HomeF.AnchorPoint = Vector2.new(0,1)
+HomeF.Position = UDim2.new(0,12,0.96,0)
+HomeF.Size = UDim2.new(0,Xsize/1.35,0,YSize/1.2)
+HomeF.BackgroundColor3 = Color3.fromRGB(22,22,22)
+HomeF.BackgroundTransparency = 0
+local HomeLabel1 = Instance.new("TextLabel", HomeF)
+HomeLabel1.TextXAlignment = "Left"
+HomeLabel1.AnchorPoint = Vector2.new(0,0)
+HomeLabel1.Position = UDim2.new(0,10,0,0)
+HomeLabel1.Size = UDim2.new(0.9,0,0,25)
+HomeLabel1.BackgroundTransparency = 1
+HomeLabel1.TextScaled = true
+HomeLabel1.TextColor3 = Color3.fromRGB(245,245,245)
+HomeLabel1.Font = Enum.Font.FredokaOne
+HomeLabel1.Text = "• Home"
+-------// Home Content \\-------
+local Label1 = Instance.new("TextLabel", HomeF)
+Label1.TextXAlignment = "Center"
+Label1.AnchorPoint = Vector2.new(0.5,0.5)
+Label1.Position = UDim2.new(0.8,0,0.05,0)
+Label1.Size = UDim2.new(0.5,0,0,25)
+Label1.BackgroundTransparency = 1
+Label1.TextScaled = true
+Label1.TextColor3 = Color3.fromRGB(222,222,222)
+Label1.Font = Enum.Font.FredokaOne
+Label1.Text = "Signs"
+
+local Author = Instance.new("TextLabel", HomeF)
+Author.TextXAlignment = "Right"
+Author.AnchorPoint = Vector2.new(1,1)
+Author.Position = UDim2.new(0.98,0,0.98,0)
+Author.Size = UDim2.new(0.5,0,0,25)
+Author.BackgroundTransparency = 1
+Author.TextScaled = true
+Author.TextColor3 = Color3.fromRGB(55,55,55)
+Author.Font = Enum.Font.FredokaOne
+Author.Text = "script by cengdopo"
+
+local Sign1 = Instance.new("TextLabel", HomeF)
+Sign1.TextXAlignment = "Center"
+Sign1.AnchorPoint = Vector2.new(0.5,0.5)
+Sign1.Position = UDim2.new(0.8,0,0.15,0)
+Sign1.Size = UDim2.new(0.3,0,0,30)
+Sign1.BackgroundTransparency = 1
+Sign1.TextScaled = true
+Sign1.TextColor3 = Color3.fromRGB(255,255,255)
+Sign1.Font = Enum.Font.FredokaOne
+Sign1.Text = "⚠️ - not safe function"
+local Sign2 = Instance.new("TextLabel", HomeF)
+Sign2.TextXAlignment = "Center"
+Sign2.AnchorPoint = Vector2.new(0.5,0.5)
+Sign2.Position = UDim2.new(0.8,0,0.25,0)
+Sign2.Size = UDim2.new(0.3,0,0,30)
+Sign2.BackgroundTransparency = 1
+Sign2.TextScaled = true
+Sign2.TextColor3 = Color3.fromRGB(255,255,255)
+Sign2.Font = Enum.Font.FredokaOne
+Sign2.Text = "⛔️ - soon function"
+local Sign3 = Instance.new("TextLabel", HomeF)
+Sign3.TextXAlignment = "Center"
+Sign3.AnchorPoint = Vector2.new(0.5,0.5)
+Sign3.Position = UDim2.new(0.3,0,0.95,0)
+Sign3.Size = UDim2.new(0.5,0,0,30)
+Sign3.BackgroundTransparency = 1
+Sign3.TextScaled = true
+Sign3.TextColor3 = Color3.fromRGB(175,175,175)
+Sign3.Font = Enum.Font.FredokaOne
+Sign3.Text = "Press ''L'' to Hide or Show UI Menu"
+
+
+local Statsiss = Instance.new("TextLabel", HomeF)
+Statsiss.TextXAlignment = "Left"
+Statsiss.AnchorPoint = Vector2.new(0,0)
+Statsiss.Position = UDim2.new(0,10,0.125,0)
+Statsiss.Size = UDim2.new(0.3,0,0,30)
+Statsiss.BackgroundTransparency = 1
+Statsiss.TextScaled = true
+Statsiss.TextColor3 = Color3.fromRGB(233,233,233)
+Statsiss.Font = Enum.Font.FredokaOne
+Statsiss.Text = "Stats:"
+
+local GainedHoney = Instance.new("TextLabel", HomeF)
+GainedHoney.TextXAlignment = "Left"
+GainedHoney.AnchorPoint = Vector2.new(0,0)
+GainedHoney.Position = UDim2.new(0,10,0.225,0)
+GainedHoney.Size = UDim2.new(0.4,0,0,20)
+GainedHoney.BackgroundTransparency = 1
+GainedHoney.TextScaled = true
+GainedHoney.TextColor3 = Color3.fromRGB(215,215,215)
+GainedHoney.Font = Enum.Font.FredokaOne
+GainedHoney.Text = "Gained Honey: 0"
+local KilledVicious = Instance.new("TextLabel", HomeF)
+KilledVicious.TextXAlignment = "Left"
+KilledVicious.AnchorPoint = Vector2.new(0,0)
+KilledVicious.Position = UDim2.new(0,10,0.3,0)
+KilledVicious.Size = UDim2.new(0.4,0,0,20)
+KilledVicious.BackgroundTransparency = 1
+KilledVicious.TextScaled = true
+KilledVicious.TextColor3 = Color3.fromRGB(215,215,215)
+KilledVicious.Font = Enum.Font.FredokaOne
+KilledVicious.Text = "Killed Vicious: 0"
+local GainedSnowflakes = Instance.new("TextLabel", HomeF)
+GainedSnowflakes.TextXAlignment = "Left"
+GainedSnowflakes.AnchorPoint = Vector2.new(0,0)
+GainedSnowflakes.Position = UDim2.new(0,10,0.375,0)
+GainedSnowflakes.Size = UDim2.new(0.4,0,0,20)
+GainedSnowflakes.BackgroundTransparency = 1
+GainedSnowflakes.TextScaled = true
+GainedSnowflakes.TextColor3 = Color3.fromRGB(215,215,215)
+GainedSnowflakes.Font = Enum.Font.FredokaOne
+GainedSnowflakes.Text = "Farmed Snowflakes: 0"
+local Playtime = Instance.new("TextLabel", HomeF)
+Playtime.TextXAlignment = "Left"
+Playtime.AnchorPoint = Vector2.new(0,0)
+Playtime.Position = UDim2.new(0,10,0.45,0)
+Playtime.Size = UDim2.new(0.4,0,0,20)
+Playtime.BackgroundTransparency = 1
+Playtime.TextScaled = true
+Playtime.TextColor3 = Color3.fromRGB(215,215,215)
+Playtime.Font = Enum.Font.FredokaOne
+Playtime.Text = "Time in game: 0"
+--------------------------------
+
+local FarmF = Instance.new("Frame", frame)
+local Corner4 = Instance.new("UICorner", FarmF)
+Corner4.CornerRadius = UDim.new(0,20)
+FarmF.Name = "FarmF"
+FarmF.AnchorPoint = Vector2.new(0,1)
+FarmF.Position = UDim2.new(0,12,0.96,0)
+FarmF.Size = UDim2.new(0,Xsize/1.35,0,YSize/1.2)
+FarmF.BackgroundColor3 = Color3.fromRGB(22,22,22)
+FarmF.BackgroundTransparency = 0
+local FarmLabel1 = Instance.new("TextLabel", FarmF)
+FarmLabel1.TextXAlignment = "Left"
+FarmLabel1.AnchorPoint = Vector2.new(0,0)
+FarmLabel1.Position = UDim2.new(0,10,0,0)
+FarmLabel1.Size = UDim2.new(0.9,0,0,25)
+FarmLabel1.BackgroundTransparency = 1
+FarmLabel1.TextScaled = true
+FarmLabel1.TextColor3 = Color3.fromRGB(245,245,245)
+FarmLabel1.Font = Enum.Font.FredokaOne
+FarmLabel1.Text = "• Farm"
+-------// Farm Content \\-------
+local FarmLeaves = Instance.new("TextButton", FarmF)
+local Corner6 = Instance.new("UICorner", FarmLeaves)
+Corner6.CornerRadius = UDim.new(0,15)
+FarmLeaves.Name = "FarmLeaves"
+FarmLeaves.TextXAlignment = "Center"
+FarmLeaves.AnchorPoint = Vector2.new(0.5,0.5)
+FarmLeaves.Position = UDim2.new(0.165,0,0.2,0)
+FarmLeaves.Size = UDim2.new(0,150,0,30)
+FarmLeaves.BackgroundTransparency = 0
+FarmLeaves.TextScaled = true
+FarmLeaves.BackgroundColor3 = Color3.fromRGB(40,40,40)
+FarmLeaves.TextColor3 = Color3.fromRGB(244,244,244)
+FarmLeaves.Font = Enum.Font.FredokaOne
+FarmLeaves.Text = "Auto Farm Leaves"
+FarmLeaves.AutoButtonColor = false
+local AutoDig = Instance.new("TextButton", FarmF)
+local Corner7 = Instance.new("UICorner", AutoDig)
+Corner7.CornerRadius = UDim.new(0,15)
+AutoDig.Name = "AutoDig"
+AutoDig.TextXAlignment = "Center"
+AutoDig.AnchorPoint = Vector2.new(0.5,0.5)
+AutoDig.Position = UDim2.new(0.165,0,0.33,0)
+AutoDig.Size = UDim2.new(0,150,0,30)
+AutoDig.BackgroundTransparency = 0
+AutoDig.TextScaled = true
+AutoDig.BackgroundColor3 = Color3.fromRGB(40,40,40)
+AutoDig.TextColor3 = Color3.fromRGB(244,244,244)
+AutoDig.Font = Enum.Font.FredokaOne
+AutoDig.Text = "Auto Dig"
+AutoDig.AutoButtonColor = false
+local Snowflakes = Instance.new("TextButton", FarmF)
+local Corner11 = Instance.new("UICorner", Snowflakes)
+Corner11.CornerRadius = UDim.new(0,15)
+Snowflakes.Name = "Snowflakes"
+Snowflakes.TextXAlignment = "Center"
+Snowflakes.AnchorPoint = Vector2.new(0.5,0.5)
+Snowflakes.Position = UDim2.new(0.165,0,0.46,0)
+Snowflakes.Size = UDim2.new(0,150,0,30)
+Snowflakes.BackgroundTransparency = 0
+Snowflakes.TextScaled = true
+Snowflakes.BackgroundColor3 = Color3.fromRGB(40,40,40)
+Snowflakes.TextColor3 = Color3.fromRGB(244,244,244)
+Snowflakes.Font = Enum.Font.FredokaOne
+Snowflakes.Text = "Auto Farm Snowflakes"
+Snowflakes.AutoButtonColor = false
+--------------------------------
+
+local HiveF = Instance.new("Frame", frame)
+local Corner4 = Instance.new("UICorner", HiveF)
+Corner4.CornerRadius = UDim.new(0,20)
+HiveF.Name = "HiveF"
+HiveF.AnchorPoint = Vector2.new(0,1)
+HiveF.Position = UDim2.new(0,12,0.96,0)
+HiveF.Size = UDim2.new(0,Xsize/1.35,0,YSize/1.2)
+HiveF.BackgroundColor3 = Color3.fromRGB(22,22,22)
+HiveF.BackgroundTransparency = 0
+local HiveLabel1 = Instance.new("TextLabel", HiveF)
+HiveLabel1.TextXAlignment = "Left"
+HiveLabel1.AnchorPoint = Vector2.new(0,0)
+HiveLabel1.Position = UDim2.new(0,10,0,0)
+HiveLabel1.Size = UDim2.new(0.9,0,0,25)
+HiveLabel1.BackgroundTransparency = 1
+HiveLabel1.TextScaled = true
+HiveLabel1.TextColor3 = Color3.fromRGB(245,245,245)
+HiveLabel1.Font = Enum.Font.FredokaOne
+HiveLabel1.Text = "• Hive"
+--
+local TimersF = Instance.new("Frame", frame)
+local Corner8 = Instance.new("UICorner", TimersF)
+Corner8.CornerRadius = UDim.new(0,20)
+TimersF.Name = "TimersF"
+TimersF.AnchorPoint = Vector2.new(0,1)
+TimersF.Position = UDim2.new(0,12,0.96,0)
+TimersF.Size = UDim2.new(0,Xsize/1.35,0,YSize/1.2)
+TimersF.BackgroundColor3 = Color3.fromRGB(22,22,22)
+TimersF.BackgroundTransparency = 0
+local TimersLabel1 = Instance.new("TextLabel", TimersF)
+TimersLabel1.TextXAlignment = "Left"
+TimersLabel1.AnchorPoint = Vector2.new(0,0)
+TimersLabel1.Position = UDim2.new(0,10,0,0)
+TimersLabel1.Size = UDim2.new(0.9,0,0,25)
+TimersLabel1.BackgroundTransparency = 1
+TimersLabel1.TextScaled = true
+TimersLabel1.TextColor3 = Color3.fromRGB(245,245,245)
+TimersLabel1.Font = Enum.Font.FredokaOne
+TimersLabel1.Text = "• Timers"
+--
+local CombatF = Instance.new("Frame", frame)
+local Corner8 = Instance.new("UICorner", CombatF)
+Corner8.CornerRadius = UDim.new(0,20)
+CombatF.Name = "CombatF"
+CombatF.AnchorPoint = Vector2.new(0,1)
+CombatF.Position = UDim2.new(0,12,0.96,0)
+CombatF.Size = UDim2.new(0,Xsize/1.35,0,YSize/1.2)
+CombatF.BackgroundColor3 = Color3.fromRGB(22,22,22)
+CombatF.BackgroundTransparency = 0
+local CombatLabel1 = Instance.new("TextLabel", CombatF)
+CombatLabel1.TextXAlignment = "Left"
+CombatLabel1.AnchorPoint = Vector2.new(0,0)
+CombatLabel1.Position = UDim2.new(0,10,0,0)
+CombatLabel1.Size = UDim2.new(0.9,0,0,25)
+CombatLabel1.BackgroundTransparency = 1
+CombatLabel1.TextScaled = true
+CombatLabel1.TextColor3 = Color3.fromRGB(245,245,245)
+CombatLabel1.Font = Enum.Font.FredokaOne
+CombatLabel1.Text = "• Combat Settings"
+
+------------\\--------//--------------
+-------------||Combat||---------------
+------------//--------\\--------------
+
+local hantvicious = Instance.new("TextButton", CombatF)
+local Corner15 = Instance.new("UICorner", hantvicious)
+Corner15.CornerRadius = UDim.new(0,15)
+hantvicious.Name = "hantvicious"
+hantvicious.TextXAlignment = "Center"
+hantvicious.AnchorPoint = Vector2.new(0.5,0.5)
+hantvicious.Position = UDim2.new(0.165,0,0.2,0)
+hantvicious.Size = UDim2.new(0,150,0,30)
+hantvicious.BackgroundTransparency = 0
+hantvicious.TextScaled = true
+hantvicious.BackgroundColor3 = Color3.fromRGB(40,40,40)
+hantvicious.TextColor3 = Color3.fromRGB(244,244,244)
+hantvicious.Font = Enum.Font.FredokaOne
+hantvicious.Text = "Auto Kill Vicious"
+hantvicious.AutoButtonColor = false
+
+--------------------------------------
+local SettingsF = Instance.new("Frame", frame)
+local Corner13 = Instance.new("UICorner", SettingsF)
+Corner13.CornerRadius = UDim.new(0,20)
+SettingsF.Name = "SettingsF"
+SettingsF.AnchorPoint = Vector2.new(0,1)
+SettingsF.Position = UDim2.new(0,12,0.96,0)
+SettingsF.Size = UDim2.new(0,Xsize/1.35,0,YSize/1.2)
+SettingsF.BackgroundColor3 = Color3.fromRGB(22,22,22)
+SettingsF.BackgroundTransparency = 0
+local SettingsLabel1 = Instance.new("TextLabel", SettingsF)
+SettingsLabel1.TextXAlignment = "Left"
+SettingsLabel1.AnchorPoint = Vector2.new(0,0)
+SettingsLabel1.Position = UDim2.new(0,10,0,0)
+SettingsLabel1.Size = UDim2.new(0.9,0,0,25)
+SettingsLabel1.BackgroundTransparency = 1
+SettingsLabel1.TextScaled = true
+SettingsLabel1.TextColor3 = Color3.fromRGB(245,245,245)
+SettingsLabel1.Font = Enum.Font.FredokaOne
+SettingsLabel1.Text = "• Configure"
+--// Settings \\--
+local WalkBox = Instance.new("TextBox", SettingsF)
+local Corner16 = Instance.new("UICorner", WalkBox)
+Corner16.CornerRadius = UDim.new(0,15)
+WalkBox.Name = "WalkBox"
+WalkBox.TextXAlignment = "Center"
+WalkBox.AnchorPoint = Vector2.new(0.5,0.5)
+WalkBox.Position = UDim2.new(0.165,0,0.18,0)
+WalkBox.Size = UDim2.new(0,150,0,30)
+WalkBox.BackgroundTransparency = 0
+WalkBox.TextScaled = true
+WalkBox.BackgroundColor3 = Color3.fromRGB(40,40,40)
+WalkBox.TextColor3 = Color3.fromRGB(244,244,244)
+WalkBox.Font = Enum.Font.FredokaOne
+WalkBox.Text = "16"
+
+local WalkSpeedChange = Instance.new("TextButton", SettingsF)
+local Corner17 = Instance.new("UICorner", WalkSpeedChange)
+Corner17.CornerRadius = UDim.new(0,15)
+WalkSpeedChange.Name = "WalkSpeedChange"
+WalkSpeedChange.TextXAlignment = "Center"
+WalkSpeedChange.AnchorPoint = Vector2.new(0.5,0.5)
+WalkSpeedChange.Position = UDim2.new(0.165,0,0.3,0)
+WalkSpeedChange.Size = UDim2.new(0,150,0,30)
+WalkSpeedChange.BackgroundTransparency = 0
+WalkSpeedChange.TextScaled = true
+WalkSpeedChange.BackgroundColor3 = Color3.fromRGB(40,40,40)
+WalkSpeedChange.TextColor3 = Color3.fromRGB(244,244,244)
+WalkSpeedChange.Font = Enum.Font.FredokaOne
+WalkSpeedChange.Text = "Set Walk Speed"
+WalkSpeedChange.AutoButtonColor = false
+
+
+
+HomeF.Visible = true
+FarmF.Visible = false
+HiveF.Visible = false
+TimersF.Visible = false
+SettingsF.Visible = false
+CombatF.Visible = false
+
+if bounty.tembs.honeystart == 0 then bounty.tembs.honeystart = statstable.Totals.Honey end
+-- Functions
+local tweens = function(time, pos)
+	ts:Create(plr.Character.HumanoidRootPart, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = pos}):Play() task.wait(time)
+end
+local v9 = function(num)
+	local f, k = num, nil
+	while true do
+		f, k = string.gsub(f, "^(-?%d+)(%d%d%d)", "%1,%2")
+		if k == 0 then
+			break
+		end
+	end
+	return f
+end
+
+Workspace.Particles.ChildAdded:Connect(function(instance)
+    if string.find(instance.Name, "Vicious") then
+        bounty.toggles.ViciousDetected = true
+        --if kometa.webhooking.vicious then api.imagehook(kometawebhook.webhook, "Vicious Bee detected!", "kometa â˜„ï¸", "https://static.wikia.nocookie.net/bee-swarm-simulator/images/1/1f/Vicious_Bee.png/revision/latest/scale-to-width-down/350?cb=20181130115012&path-prefix=ru") end
+    end
+end)
+Workspace.Particles.ChildRemoved:Connect(function(instance)
+    if string.find(instance.Name, "Vicious") then
+        bounty.toggles.ViciousDetected = false
+    end
+end)
+function statsget()
+	local StatCache = require(game.ReplicatedStorage.ClientStatCache)
+	local stats = StatCache:Get()
+	return stats
+end
+for k,g in pairs(workspace.FieldDecos:GetChildren()) do
+	if g:IsA("BasePart") or g:IsA("MeshPart") or g:IsA("Part") then
+		g.Transparency = 0.65
+		g.CanCollide = false
+	elseif g:IsA("Model") then
+		for i,v in pairs(g:GetChildren()) do
+			if v:IsA("BasePart") or v:IsA("MeshPart") or v:IsA("Part") then
+				v.Transparency = 0.65
+				v.CanCollide = false
+			elseif g:IsA("Model") then
+				for _,x in pairs(g:GetChildren()) do
+					if x:IsA("BasePart") or x:IsA("MeshPart") or x:IsA("Part") then
+						x.Transparency = 0.65
+						x.CanCollide = false
+					end
+				end
+			end
+		end
+	end
+end
+
+UIS.InputBegan:Connect(function(Input, GPE)
+	if not GPE then
+		if Input.KeyCode == Enum.KeyCode.L then
+			if showed == false then
+				showed = true
+				frame:TweenPosition(UDim2.new(0,frame.Position.X.Offset,0,frame.Position.Y.Offset -2000), "Out", "Back", 0.5, true)
+			else
+				showed = false
+				frame:TweenPosition(UDim2.new(0,frame.Position.X.Offset,0,frame.Position.Y.Offset +2000), "Out", "Back", 0.5, true)
+			end
+		end
+	end
+end)
+local deb = false
+workspace.Particles.Snowflakes.ChildAdded:Connect(function(child)
+    if bounty.toggles.AutoSnowflakes == true and not deb then
+    	deb = true
+    	plr.Character.HumanoidRootPart.CFrame = child.CFrame
+    	plr.Character.HumanoidRootPart.Anchored = true
+    	wait(5)
+    	plr.Character.HumanoidRootPart.Anchored = false
+    	wait(1)
+    	deb = false
+   	end
+end)
+
+for i,v in pairs(workspace.Flowers:GetChildren()) do
+	v.ChildAdded:Connect(function(child)
+    	if child.Name == "LeafBurst" and bounty.toggles.Leaves == true then
+    		plr.Character.HumanoidRootPart.CFrame = v.CFrame
+    		wait(0.1)
+    		for x = 1,2 do
+    			game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool"):FindFirstChild("ClickEvent", true):FireServer()
+    			wait(1)
+    		end
+   		end
+   	end)
+end
+
+mouse.Button1Down:Connect(function()
+	if CanMove == true then
+		MoveUI = true
+	end
+end)
+mouse.Button1Up:Connect(function()
+	MoveUI = false
+end)
+
+mouse.Move:Connect(function()
+	if MoveUI == true then
+		frame.Position = UDim2.new(0, mouse.X, 0, mouse.Y+(YSize/2)-6)
+	end
+end)
+
+FarmLeaves.MouseButton1Click:Connect(function()
+	if not bounty.toggles.Leaves then
+		bounty.toggles.Leaves = true
+		FarmLeaves.BackgroundColor3 = Color3.fromRGB(93,193,68)
+	else
+		bounty.toggles.Leaves = false
+		FarmLeaves.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	end
+end)
+WalkSpeedChange.MouseButton1Click:Connect(function()
+	if tonumber(WalkBox.Text) then
+		bounty.choosedspeed = tonumber(WalkBox.Text)
+	end
+end)
+Snowflakes.MouseButton1Click:Connect(function()
+	if not bounty.toggles.AutoSnowflakes then
+		bounty.toggles.AutoSnowflakes = true
+		Snowflakes.BackgroundColor3 = Color3.fromRGB(93,193,68)
+	else
+		bounty.toggles.AutoSnowflakes = false
+		Snowflakes.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	end
+end)
+AutoDig.MouseButton1Click:Connect(function()
+	if not bounty.toggles.AutoDig then
+		bounty.toggles.AutoDig = true
+		AutoDig.BackgroundColor3 = Color3.fromRGB(93,193,68)
+	else
+		bounty.toggles.AutoDig = false
+		AutoDig.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	end
+end)
+
+ScriptLabel.MouseEnter:Connect(function()
+	CanMove = true
+end)	
+ScriptLabel.MouseLeave:Connect(function()
+	CanMove = false
+end)	
+Snowflakes.MouseEnter:Connect(function()
+	ts:Create(Snowflakes, TweenInfo.new(0.4), {BackgroundTransparency = 0.35}):Play()
+end)	
+Snowflakes.MouseLeave:Connect(function()
+	ts:Create(Snowflakes, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
+end)	
+FarmLeaves.MouseEnter:Connect(function()
+	ts:Create(FarmLeaves, TweenInfo.new(0.4), {BackgroundTransparency = 0.35}):Play()
+end)	
+FarmLeaves.MouseLeave:Connect(function()
+	ts:Create(FarmLeaves, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
+end)	
+AutoDig.MouseEnter:Connect(function()
+	ts:Create(AutoDig, TweenInfo.new(0.4), {BackgroundTransparency = 0.35}):Play()
+end)	
+AutoDig.MouseLeave:Connect(function()
+	ts:Create(AutoDig, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
+end)
+
+ShowUI.MouseButton1Click:Connect(function()
+	showed = true
+	frame:TweenPosition(UDim2.new(0,frame.Position.X.Offset,0,frame.Position.Y.Offset -2000), "Out", "Back", 0.5, true)
+end)
+Destroy.MouseButton1Click:Connect(function()
+	ui:Destroy()
+end)
+HomeB.MouseButton1Click:Connect(function()
+	OMen = "HomeF"
+	HomeF.Visible = true
+	HomeF:TweenPosition(UDim2.new(0,12,0.96,0), "Out", "Linear", 0.15, true)
+	FarmF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	HiveF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	TimersF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	CombatF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	spawn(function()
+		wait(0.06)
+		FarmF.Visible = false
+		HiveF.Visible = false
+		TimersF.Visible = false
+		CombatF.Visible = false
+		SettingsF.Visible = false
+	end)
+	HomeF.Visible = true
+end)
+FarmB.MouseButton1Click:Connect(function()
+	OMen = "FarmF"
+	FarmF.Visible = true
+	FarmF:TweenPosition(UDim2.new(0,12,0.96,0), "Out", "Linear", 0.15, true)
+	HomeF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	HiveF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	TimersF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	CombatF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	SettingsF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	spawn(function()
+		wait(0.06)
+		HomeF.Visible = false
+		HiveF.Visible = false
+		TimersF.Visible = false
+		CombatF.Visible = false
+		SettingsF.Visible = false
+	end)
+	FarmF.Visible = true
+end)
+HiveB.MouseButton1Click:Connect(function()
+	OMen = "HiveF"
+	HiveF.Visible = true
+	HiveF:TweenPosition(UDim2.new(0,12,0.96,0), "Out", "Linear", 0.15, true)
+	FarmF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	HomeF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	TimersF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	CombatF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	SettingsF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	spawn(function()
+		wait(0.06)
+		HomeF.Visible = false
+		FarmF.Visible = false
+		TimersF.Visible = false
+		CombatF.Visible = false
+		SettingsF.Visible = false
+	end)
+	HiveF.Visible = true
+end)
+TimersB.MouseButton1Click:Connect(function()
+	OMen = "TimersF"
+	TimersF.Visible = true
+	TimersF:TweenPosition(UDim2.new(0,12,0.96,0), "Out", "Linear", 0.15, true)
+	FarmF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	HomeF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	HiveF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	CombatF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	SettingsF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	spawn(function()
+		wait(0.06)
+		HomeF.Visible = false
+		FarmF.Visible = false
+		HiveF.Visible = false
+		CombatF.Visible = false
+		SettingsF.Visible = false
+	end)
+	TimersF.Visible = true
+end)
+CombatB.MouseButton1Click:Connect(function()
+	OMen = "CombatF"
+	CombatF.Visible = true
+	CombatF:TweenPosition(UDim2.new(0,12,0.96,0), "Out", "Linear", 0.15, true)
+	TimersF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	FarmF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	HomeF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	HiveF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	SettingsF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	spawn(function()
+		wait(0.06)
+		TimersF.Visible = false
+		HomeF.Visible = false
+		FarmF.Visible = false
+		HiveF.Visible = false
+		SettingsF.Visible = false
+	end)
+	CombatF.Visible = true
+end)
+SettingsB.MouseButton1Click:Connect(function()
+	OMen = "SettingsF"
+	SettingsF.Visible = true
+	SettingsF:TweenPosition(UDim2.new(0,12,0.96,0), "Out", "Linear", 0.15, true)
+	CombatF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	TimersF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	FarmF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	HomeF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	HiveF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
+	spawn(function()
+		wait(0.06)
+		TimersF.Visible = false
+		HomeF.Visible = false
+		FarmF.Visible = false
+		CombatF.Visible = false
+		HiveF.Visible = false
+	end)
+	SettingsF.Visible = true
+end)
+function Format(Int)
+	return string.format("%02i", Int)
+end
+function FormatTime(Seconds)
+	local Minutes = (Seconds - Seconds%60)/60
+	Seconds = Seconds - Minutes*60
+		
+	local Hours = (Minutes - Minutes%60)/60
+	Minutes = Minutes - Hours*60
+		
+	local Days = (Hours - Hours%24)/24
+	Hours = Hours - Days*24
+		
+	if Days > 0 and Hours > 0 and Minutes > 0 then
+		return Format(Days)..":"..Format(Hours)..":"..Format(Minutes)..":"..Format(Seconds)
+	elseif Days <= 0 and Hours > 0 and Minutes > 0 then
+		return Format(Hours)..":"..Format(Minutes)..":"..Format(Seconds)
+	elseif Days <= 0 and Hours <= 0 and Minutes > 0 then
+		return Format(Minutes)..":"..Format(Seconds)
+	else
+		return Format(Minutes)..":"..Format(Seconds)
+	end
+end
+
+--Animations
+Destroy.MouseEnter:Connect(function()
+	Destroy:TweenSize(UDim2.new(0,35,0,35), "Out", "Back", 0.2, true)
+	ts:Create(Destroy, TweenInfo.new(0.2), {Rotation = 15}):Play()
+end)
+Destroy.MouseLeave:Connect(function()
+	Destroy:TweenSize(UDim2.new(0,30,0,30), "Out", "Back", 0.2, true)
+	ts:Create(Destroy, TweenInfo.new(0.2), {Rotation = 0}):Play()
+end)
+
+ShowUI.MouseEnter:Connect(function()
+	ShowUI:TweenSize(UDim2.new(0,35,0,35), "Out", "Back", 0.2, true)
+	ts:Create(ShowUI, TweenInfo.new(0.2), {Rotation = 15}):Play()
+end)
+ShowUI.MouseLeave:Connect(function()
+	ShowUI:TweenSize(UDim2.new(0,30,0,30), "Out", "Back", 0.2, true)
+	ts:Create(ShowUI, TweenInfo.new(0.2), {Rotation = 0}):Play()
+end)
+
+for i,v in pairs(Menus:GetChildren()) do
+	if not v:IsA("UICorner") then
+		v.MouseEnter:Connect(function()
+			ts:Create(v, TweenInfo.new(0.4), {BackgroundTransparency = 0.7}):Play()
+		end)	
+		v.MouseLeave:Connect(function()
+			ts:Create(v, TweenInfo.new(0.4), {BackgroundTransparency = 0.8}):Play()
+		end)	
+	end
+end
+
+spawn(function()
+	while wait(1) do
+		bounty.playtime += 1
+		bounty.honeycurrent = statsget().Totals.Honey
+		GainedHoney.Text = "Gained Honey: "..v9(bounty.honeycurrent-bounty.tembs.honeystart)
+		GainedSnowflakes.Text = "Farmed Snowflakes: "..v9(rtsg().Eggs.Snowflake-bounty.tembs.Snowflakesstart)
+		Playtime.Text = "Time in game: "..FormatTime(bounty.playtime)
+	end
+end)
+
+spawn(function()
+	while wait(0.05) do
+		plr.Character.Humanoid.WalkSpeed = bounty.choosedspeed
+		if bounty.toggles.AutoDig == true then
+			game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool"):FindFirstChild("ClickEvent", true):FireServer()
+		end
+	end
+end)
+
+spawn(function()
+	while true do
+		ScriptLabel.Text = "  Bounty | 0.0.1  "
+		wait(0.15)
+		ScriptLabel.Text = " • Bounty | 0.0.1 • "
+		wait(0.175)
+		ScriptLabel.Text = " • • Bounty | 0.0.1 • • "
+		wait(0.2)
+		ScriptLabel.Text = " • • • Bounty | 0.0.1 • • • "
+		wait(0.25)
+	end
+end)
