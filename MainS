@@ -15,11 +15,13 @@ local bounty = {
 	Snowflakescurrent = rtsg().Eggs.Snowflake,
 	playtime = 0,
 	choosedspeed = 25,
+	field = "Sunflower",
 	tembs = {
 		honeystart = 0,
 		Snowflakesstart = rtsg().Eggs.Snowflake,
 	},
 	toggles = {
+		autofarm = false,
 		Leaves = false,
 		AutoDig = false,
 		AutoSnowflakes = false,
@@ -28,6 +30,9 @@ local bounty = {
 	}
 }
 -- Inits
+for _, part in next, workspace:FindFirstChild("FieldDecos"):GetDescendants() do if part:IsA("BasePart") then part.CanCollide = false part.Transparency = part.Transparency < 0.5 and 0.5 or part.Transparency task.wait() end end
+for _, part in next, workspace:FindFirstChild("Decorations"):GetDescendants() do if part:IsA("BasePart") and (part.Parent.Name == "Bush" or part.Parent.Name == "Blue Flower") then part.CanCollide = false part.Transparency = part.Transparency < 0.5 and 0.5 or part.Transparency task.wait() end end
+for i,v in next, workspace.Decorations.Misc:GetDescendants() do if v.Parent.Name == "Mushroom" then v.CanCollide = false v.Transparency = 0.5 end end
 local ts = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local plr = game.Players.LocalPlayer
@@ -531,7 +536,60 @@ local v9 = function(num)
 	end
 	return f
 end
-
+game.Workspace.Particles.ChildAdded:Connect(function(v)
+    if not temptable.started.vicious and not temptable.started.ant then
+        if v.Name == "WarningDisk" and not temptable.started.vicious and kometa.toggles.autofarm and not temptable.started.ant and kometa.toggles.farmcoco and (v.Position-api.humanoidrootpart().Position).magnitude < 40 and not temptable.converting then
+            table.insert(temptable.coconuts, v)
+            getcoco(v)
+            gettoken()
+        elseif v.Name == "Crosshair" then
+            task.wait(.2)
+            if v ~= nil and v.BrickColor ~= BrickColor.new("Forest green") and not temptable.started.ant and v.BrickColor ~= BrickColor.new("Flint") and (v.Position-api.humanoidrootpart().Position).magnitude < 40 and kometa.toggles.autofarm and kometa.toggles.collectcrosshairs and not temptable.converting then
+                if #temptable.crosshairs <= 3 then
+                    table.insert(temptable.crosshairs, v)
+                    getcrosshairs(v)
+                    gettoken()
+                end
+            end
+        elseif v.Name == "DustBunnyInstance" then
+            task.wait(.1)
+            if v:FindFirstChild("Plane") then
+                if kometa.toggles.farmfuzzy and kometa.toggles.autofarm and tonumber((v.Plane.Position-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude) < 40 then
+                    table.insert(temptable.FuzzyBombs, v)
+                    getfuzzy(v)
+                end
+            end
+        end
+    end
+end)
+function findclosestflame()
+    local root = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
+    if root == nil then return end
+    local studs = math.huge
+    local part
+    for _, obj in next, game:GetService("Workspace").PlayerFlames:GetChildren() do
+        local distance = (root.Position - obj.Position).Magnitude
+        if distance < studs then
+            studs = distance
+            part = obj
+        end
+    end
+    return part
+end
+function getflame()
+    for i,v in next, game:GetService("Workspace").PlayerFlames:GetChildren() do
+        if tonumber((v.Position-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude) < 40 and not rtsg().Modifiers.FlameHeat then
+            if kometa.toggles.faceflames and findclosestflame() then plr.Character.HumanoidRootPart.CFrame = CFrame.lookAt(api.humanoidrootpart().Position, Vector3.new(findclosestflame().Position.X, plr.Character.HumanoidRootPart.Position.Y, findclosestflame().Position.Z)) end
+            repeat 
+                plr.Character.Humanoid.AutoRotate = false
+                plr.Character.Humanoid:MoveTo(v.Position) 
+                task.wait()
+            until rtsg().ModifierCaches.Value.FlameHeat['_'] == 1 or not v or not v.Parent or (not v:WaitForChild('PF').Enabled and not v:WaitForChild('PS').Enabled) 
+            plr.Character.Humanoid.AutoRotate = true
+            break
+        end
+    end
+end
 Workspace.Particles.ChildAdded:Connect(function(instance)
     if string.find(instance.Name, "Vicious") then
         bounty.toggles.ViciousDetected = true
