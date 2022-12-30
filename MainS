@@ -15,10 +15,13 @@ local bounty = {
 	Snowflakescurrent = rtsg().Eggs.Snowflake,
 	playtime = 0,
 	choosedspeed = 25,
+	convertat = 100,
 	field = "Sunflower",
 	tembs = {
 		honeystart = 0,
 		Snowflakesstart = rtsg().Eggs.Snowflake,
+		tokensfarm = false,
+		converting = false,
 	},
 	toggles = {
 		autofarm = false,
@@ -27,6 +30,10 @@ local bounty = {
 		AutoSnowflakes = false,
 		ViciousDetected = false,
 		ViciousHant = false,
+		avoidmobs = false,
+		farmbubbles = false,
+		farmclosestleaf = false,
+		farmclouds = false,
 	}
 }
 -- Inits
@@ -378,6 +385,31 @@ Snowflakes.TextColor3 = Color3.fromRGB(244,244,244)
 Snowflakes.Font = Enum.Font.FredokaOne
 Snowflakes.Text = "Auto Farm Snowflakes"
 Snowflakes.AutoButtonColor = false
+local AutoFarmE = Instance.new("TextButton", FarmF)
+local Corner22 = Instance.new("UICorner", AutoFarmE)
+Corner22.CornerRadius = UDim.new(0,15)
+AutoFarmE.Name = "AutoFarmE"
+AutoFarmE.TextXAlignment = "Center"
+AutoFarmE.AnchorPoint = Vector2.new(0.5,0.5)
+AutoFarmE.Position = UDim2.new(0.165,0,0.59,0)
+AutoFarmE.Size = UDim2.new(0,150,0,30)
+AutoFarmE.BackgroundTransparency = 0
+AutoFarmE.TextScaled = true
+AutoFarmE.BackgroundColor3 = Color3.fromRGB(40,40,40)
+AutoFarmE.TextColor3 = Color3.fromRGB(244,244,244)
+AutoFarmE.Font = Enum.Font.FredokaOne
+AutoFarmE.Text = "Auto Farm"
+AutoFarmE.AutoButtonColor = false
+local Cfield = Instance.new("TextLabel", FarmF)
+Cfield.TextXAlignment = "Center"
+Cfield.AnchorPoint = Vector2.new(0.5,0.5)
+Cfield.Position = UDim2.new(0.165,0,0.66,0)
+Cfield.Size = UDim2.new(0,190,0,26)
+Cfield.BackgroundTransparency = 1
+Cfield.TextScaled = true
+Cfield.TextColor3 = Color3.fromRGB(245,245,245)
+Cfield.Font = Enum.Font.FredokaOne
+Cfield.Text = "Choosed Field: Sunflower Field"
 --------------------------------
 
 local HiveF = Instance.new("Frame", frame)
@@ -511,9 +543,61 @@ WalkSpeedChange.TextColor3 = Color3.fromRGB(244,244,244)
 WalkSpeedChange.Font = Enum.Font.FredokaOne
 WalkSpeedChange.Text = "Set Walk Speed"
 WalkSpeedChange.AutoButtonColor = false
+--FIELDS--
+local NowField = Instance.new("TextLabel", SettingsF)
+NowField.TextXAlignment = "Center"
+NowField.AnchorPoint = Vector2.new(1,0)
+NowField.Position = UDim2.new(0.96,0,0,5)
+NowField.Size = UDim2.new(0.4,0,0,25)
+NowField.BackgroundTransparency = 1
+NowField.TextScaled = true
+NowField.TextColor3 = Color3.fromRGB(245,245,245)
+NowField.Font = Enum.Font.FredokaOne
+NowField.Text = "Choosed Field: Sunflower Field"
+
+local FieldsList = Instance.new("ScrollingFrame", SettingsF)
+FieldsList.AnchorPoint = Vector2.new(1,0)
+FieldsList.Position = UDim2.new(0.96,0,0.1,0)
+FieldsList.Size = UDim2.new(0.4,0,0.5,0)
+FieldsList.BackgroundTransparency = 1
+FieldsList.BorderSizePixel = 0
+FieldsList.CanvasSize = UDim2.new(0,0,5,0)
+FieldsList.ScrollBarThickness = 5
+local FieldsListShadow = Instance.new("Frame", SettingsF)
+local Corner20 = Instance.new("UICorner", FieldsListShadow)
+Corner20.CornerRadius = UDim.new(0,15)
+FieldsListShadow.AnchorPoint = Vector2.new(1,0)
+FieldsListShadow.Position = UDim2.new(0.96,0,0.1,0)
+FieldsListShadow.Size = UDim2.new(0.4,0,0.5,0)
+FieldsListShadow.BackgroundTransparency = 0.9
+local listui = Instance.new("UIListLayout", FieldsList)
+for _, Field in pairs(game:GetService('Workspace').FlowerZones:GetChildren()) do
+	local FieldCho = Instance.new("TextButton", FieldsList)
+	local Corner25 = Instance.new("UICorner", FieldCho)
+	Corner25.CornerRadius = UDim.new(0,1)
+	FieldCho.Name = Field.Name
+	FieldCho.TextXAlignment = "Center"
+	FieldCho.BorderSizePixel = 0
+	FieldCho.AnchorPoint = Vector2.new(0.5,0.5)
+	FieldCho.Position = UDim2.new(0,0,0,0)
+	FieldCho.Size = UDim2.new(0.95,0,0,30)
+	FieldCho.BackgroundTransparency = 0
+	FieldCho.TextScaled = true
+	FieldCho.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	FieldCho.TextColor3 = Color3.fromRGB(244,244,244)
+	FieldCho.Font = Enum.Font.FredokaOne
+	FieldCho.Text = Field.Name
+	FieldCho.AutoButtonColor = true
+	FieldCho.MouseButton1Click:Connect(function()
+		bounty.Field = FieldCho.Name
+		NowField.Text = "Choosed Field: "..bounty.Field
+		Cfield.Text = "Choosed Field: "..bounty.Field
+	end)
+end
 
 
 
+OMen = HomeF
 HomeF.Visible = true
 FarmF.Visible = false
 HiveF.Visible = false
@@ -536,32 +620,18 @@ local v9 = function(num)
 	end
 	return f
 end
-game.Workspace.Particles.ChildAdded:Connect(function(v)
-    if not temptable.started.vicious and not temptable.started.ant then
-        if v.Name == "WarningDisk" and not temptable.started.vicious and kometa.toggles.autofarm and not temptable.started.ant and kometa.toggles.farmcoco and (v.Position-api.humanoidrootpart().Position).magnitude < 40 and not temptable.converting then
-            table.insert(temptable.coconuts, v)
-            getcoco(v)
-            gettoken()
-        elseif v.Name == "Crosshair" then
-            task.wait(.2)
-            if v ~= nil and v.BrickColor ~= BrickColor.new("Forest green") and not temptable.started.ant and v.BrickColor ~= BrickColor.new("Flint") and (v.Position-api.humanoidrootpart().Position).magnitude < 40 and kometa.toggles.autofarm and kometa.toggles.collectcrosshairs and not temptable.converting then
-                if #temptable.crosshairs <= 3 then
-                    table.insert(temptable.crosshairs, v)
-                    getcrosshairs(v)
-                    gettoken()
-                end
-            end
-        elseif v.Name == "DustBunnyInstance" then
+function converthoney()
+    task.wait(0)
+    if temptable.converting then
+        if game.Players.LocalPlayer.PlayerGui.ScreenGui.ActivateButton.TextBox.Text ~= "Stop Making Honey" and game.Players.LocalPlayer.PlayerGui.ScreenGui.ActivateButton.BackgroundColor3 ~= Color3.new(201, 39, 28) or (game:GetService("Players").LocalPlayer.SpawnPos.Value.Position-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude > 10 then
+            api.tween(1, game:GetService("Players").LocalPlayer.SpawnPos.Value * CFrame.fromEulerAnglesXYZ(0, 110, 0) + Vector3.new(0, 0, 9))
+            task.wait(.9)
+            if game.Players.LocalPlayer.PlayerGui.ScreenGui.ActivateButton.TextBox.Text ~= "Stop Making Honey" and game.Players.LocalPlayer.PlayerGui.ScreenGui.ActivateButton.BackgroundColor3 ~= Color3.new(201, 39, 28) or (game:GetService("Players").LocalPlayer.SpawnPos.Value.Position-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude > 10 then game:GetService("ReplicatedStorage").Events.PlayerHiveCommand:FireServer("ToggleHoneyMaking") end
             task.wait(.1)
-            if v:FindFirstChild("Plane") then
-                if kometa.toggles.farmfuzzy and kometa.toggles.autofarm and tonumber((v.Plane.Position-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude) < 40 then
-                    table.insert(temptable.FuzzyBombs, v)
-                    getfuzzy(v)
-                end
-            end
         end
     end
-end)
+end
+
 function findclosestflame()
     local root = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
     if root == nil then return end
@@ -593,7 +663,7 @@ end
 Workspace.Particles.ChildAdded:Connect(function(instance)
     if string.find(instance.Name, "Vicious") then
         bounty.toggles.ViciousDetected = true
-        --if kometa.webhooking.vicious then api.imagehook(kometawebhook.webhook, "Vicious Bee detected!", "kometa â˜„ï¸", "https://static.wikia.nocookie.net/bee-swarm-simulator/images/1/1f/Vicious_Bee.png/revision/latest/scale-to-width-down/350?cb=20181130115012&path-prefix=ru") end
+       
     end
 end)
 Workspace.Particles.ChildRemoved:Connect(function(instance)
@@ -665,7 +735,7 @@ for i,v in pairs(workspace.Flowers:GetChildren()) do
    		end
    	end)
 end
-
+local hidedui = false
 mouse.Button1Down:Connect(function()
 	if CanMove == true then
 		MoveUI = true
@@ -677,7 +747,11 @@ end)
 
 mouse.Move:Connect(function()
 	if MoveUI == true then
-		frame.Position = UDim2.new(0, mouse.X, 0, mouse.Y+(YSize/2)-6)
+		if not hidedui then
+			frame.Position = UDim2.new(0, mouse.X, 0, mouse.Y+(YSize/2)-6)
+		else
+			frame.Position = UDim2.new(0, mouse.X, 0, mouse.Y+(33/2)-6)
+		end
 	end
 end)
 
@@ -713,6 +787,15 @@ AutoDig.MouseButton1Click:Connect(function()
 		AutoDig.BackgroundColor3 = Color3.fromRGB(40,40,40)
 	end
 end)
+hantvicious.MouseButton1Click:Connect(function()
+	if not bounty.toggles.ViciousHant then
+		bounty.toggles.ViciousHant = true
+		hantvicious.BackgroundColor3 = Color3.fromRGB(93,193,68)
+	else
+		bounty.toggles.ViciousHant = false
+		hantvicious.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	end
+end)
 
 ScriptLabel.MouseEnter:Connect(function()
 	CanMove = true
@@ -739,15 +822,46 @@ AutoDig.MouseLeave:Connect(function()
 	ts:Create(AutoDig, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
 end)
 
+function ChooseFrame()
+	local frames = {
+		["HomeF"] = true,
+		["FarmF"] = true,
+		["CombatF"] = true,
+		["HiveF"] = true,
+		["SettingsF"] = true,
+		["TimersF"] = true,
+	}
+	for i,v in pairs(frame:GetChildren()) do
+		if frames[v.Name] then
+			if v.Name ~= OMen then
+				v.Visible = false
+			end
+		end
+	end
+end
+
 ShowUI.MouseButton1Click:Connect(function()
-	showed = true
-	frame:TweenPosition(UDim2.new(0,frame.Position.X.Offset,0,frame.Position.Y.Offset -2000), "Out", "Back", 0.5, true)
+	--showed = true
+	--frame:TweenPosition(UDim2.new(0,frame.Position.X.Offset,0,frame.Position.Y.Offset -2000), "Out", "Back", 0.5, true)
+	if ShowUI.Text == "-" then
+		ShowUI.Text = "+"
+		hidedui = true
+		frame:TweenSize(UDim2.new(0,Xsize,0,33), "Out", "Back", 0.25, true)
+		OMen.Visible = false
+		Menus.Visible = false
+	else
+		ShowUI.Text = "-"
+		hidedui = false
+		frame:TweenSize(UDim2.new(0,Xsize,0,YSize), "Out", "Back", 0.25, true)
+		OMen.Visible = true
+		Menus.Visible = true
+	end
 end)
 Destroy.MouseButton1Click:Connect(function()
 	ui:Destroy()
 end)
 HomeB.MouseButton1Click:Connect(function()
-	OMen = "HomeF"
+	OMen = HomeF
 	HomeF.Visible = true
 	HomeF:TweenPosition(UDim2.new(0,12,0.96,0), "Out", "Linear", 0.15, true)
 	FarmF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
@@ -765,7 +879,7 @@ HomeB.MouseButton1Click:Connect(function()
 	HomeF.Visible = true
 end)
 FarmB.MouseButton1Click:Connect(function()
-	OMen = "FarmF"
+	OMen = FarmF
 	FarmF.Visible = true
 	FarmF:TweenPosition(UDim2.new(0,12,0.96,0), "Out", "Linear", 0.15, true)
 	HomeF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
@@ -784,7 +898,7 @@ FarmB.MouseButton1Click:Connect(function()
 	FarmF.Visible = true
 end)
 HiveB.MouseButton1Click:Connect(function()
-	OMen = "HiveF"
+	OMen = HiveF
 	HiveF.Visible = true
 	HiveF:TweenPosition(UDim2.new(0,12,0.96,0), "Out", "Linear", 0.15, true)
 	FarmF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
@@ -803,7 +917,7 @@ HiveB.MouseButton1Click:Connect(function()
 	HiveF.Visible = true
 end)
 TimersB.MouseButton1Click:Connect(function()
-	OMen = "TimersF"
+	OMen = TimersF
 	TimersF.Visible = true
 	TimersF:TweenPosition(UDim2.new(0,12,0.96,0), "Out", "Linear", 0.15, true)
 	FarmF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
@@ -822,7 +936,7 @@ TimersB.MouseButton1Click:Connect(function()
 	TimersF.Visible = true
 end)
 CombatB.MouseButton1Click:Connect(function()
-	OMen = "CombatF"
+	OMen = CombatF
 	CombatF.Visible = true
 	CombatF:TweenPosition(UDim2.new(0,12,0.96,0), "Out", "Linear", 0.15, true)
 	TimersF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
@@ -841,7 +955,7 @@ CombatB.MouseButton1Click:Connect(function()
 	CombatF.Visible = true
 end)
 SettingsB.MouseButton1Click:Connect(function()
-	OMen = "SettingsF"
+	OMen = SettingsF
 	SettingsF.Visible = true
 	SettingsF:TweenPosition(UDim2.new(0,12,0.96,0), "Out", "Linear", 0.15, true)
 	CombatF:TweenPosition(UDim2.new(0,12,2,0), "Out", "Linear", 0.15, true)
@@ -913,6 +1027,49 @@ for i,v in pairs(Menus:GetChildren()) do
 	end
 end
 
+function findflower()
+    local flowerrrr = flowertable[math.random(#flowertable)]
+    if tonumber((flowerrrr.Position-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude) <= 50 and tonumber((flowerrrr-fieldposition).magnitude) <= 50 then 
+        if temptable.running == false then
+            plr.Character.Humanoid:MoveTo(flowerrrr)
+        end 
+    end
+end
+
+spawn(function()
+	while wait() do
+		if bounty.toggles.autofarm then
+			if game.Players.LocalPlayer.Character:FindFirstChild("ProgressLabel",true) then
+	        local pollenprglbl = game.Players.LocalPlayer.Character:FindFirstChild("ProgressLabel",true)
+	        local maxpollen = tonumber(pollenprglbl.Text:match("%d+$"))
+	        local pollencount = game.Players.LocalPlayer.CoreStats.Pollen.Value
+	        local pollenpercentage = pollencount/maxpollen*100
+	        local fieldselected = game:GetService("Workspace").FlowerZones[bounty.field]
+	        local fieldpos = CFrame.new(fieldselected.Position.X, fieldselected.Position.Y+3, fieldselected.Position.Z)
+       		local fieldposition = fieldselected.Position
+       		if tonumber(pollenpercentage) < tonumber(bounty.convertat) then
+       			if not bounty.tembs.tokensfarm then
+       				tweens(1, fieldpos)
+       				bounty.tembs.tokensfarm = true
+       			else
+       				if (fieldposition-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude > temptable.magnitude then
+                   		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = fieldpos.CFrame
+                    	--if bounty.toggles.autosprinkler then makesprinklers() end
+               		end
+               		--if bounty.toggles.avoidmobs then avoidmob() end
+	                --if bounty.toggles.farmclosestleaf then closestleaf() end
+	                --if bounty.toggles.farmbubbles then getbubble() end
+	                --if bounty.toggles.farmclouds then getcloud() end
+       			end
+       		elseif tonumber(pollenpercentage) >= tonumber(bounty.convertat) then
+       			bounty.tembs.tokensfarm = false
+       			tweens(1, plr.SpawnPos.Value * CFrame.fromEulerAnglesXYZ(0, 110, 0) + Vector3.new(0, 0, 9))
+       			bounty.tembs.converting = true
+       		end
+		end
+	end
+end)
+
 spawn(function()
 	while wait(1) do
 		bounty.playtime += 1
@@ -934,13 +1091,21 @@ end)
 
 spawn(function()
 	while true do
-		ScriptLabel.Text = "  Bounty | 0.0.1  "
+		ScriptLabel.Text = "  Bounty | Alpha 0.0.1  "
 		wait(0.15)
-		ScriptLabel.Text = " • Bounty | 0.0.1 • "
+		ScriptLabel.Text = " • Bounty | #lpha 0.0.1 • "
 		wait(0.175)
-		ScriptLabel.Text = " • • Bounty | 0.0.1 • • "
+		ScriptLabel.Text = " • • Bounty | A$pha 0.0.1 • • "
 		wait(0.2)
-		ScriptLabel.Text = " • • • Bounty | 0.0.1 • • • "
+		ScriptLabel.Text = " • • • Bounty | Al&ha 0.0.1 • • • "
+		wait(0.25)
+		ScriptLabel.Text = "  Bounty | Alp~a 0.0.1  "
+		wait(0.15)
+		ScriptLabel.Text = " • Bounty | Alph? 0.0.1 • "
+		wait(0.175)
+		ScriptLabel.Text = " • • Bounty | #$&~? 0.0.1 • • "
+		wait(0.2)
+		ScriptLabel.Text = " • • • Bounty | ?~&$# 0.0.1 • • • "
 		wait(0.25)
 	end
 end)
