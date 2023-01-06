@@ -15,13 +15,10 @@ local bounty = {
 	Snowflakescurrent = rtsg().Eggs.Snowflake,
 	playtime = 0,
 	choosedspeed = 25,
-	convertat = 100,
 	field = "Sunflower",
 	tembs = {
 		honeystart = 0,
 		Snowflakesstart = rtsg().Eggs.Snowflake,
-		tokensfarm = false,
-		converting = false,
 	},
 	toggles = {
 		autofarm = false,
@@ -30,10 +27,6 @@ local bounty = {
 		AutoSnowflakes = false,
 		ViciousDetected = false,
 		ViciousHant = false,
-		avoidmobs = false,
-		farmbubbles = false,
-		farmclosestleaf = false,
-		farmclouds = false,
 	}
 }
 -- Inits
@@ -631,7 +624,32 @@ function converthoney()
         end
     end
 end
-
+game.Workspace.Particles.ChildAdded:Connect(function(v)
+    if not temptable.started.vicious and not temptable.started.ant then
+        if v.Name == "WarningDisk" and not temptable.started.vicious and kometa.toggles.autofarm and not temptable.started.ant and kometa.toggles.farmcoco and (v.Position-api.humanoidrootpart().Position).magnitude < 40 and not temptable.converting then
+            table.insert(temptable.coconuts, v)
+            getcoco(v)
+            gettoken()
+        elseif v.Name == "Crosshair" then
+            task.wait(.2)
+            if v ~= nil and v.BrickColor ~= BrickColor.new("Forest green") and not temptable.started.ant and v.BrickColor ~= BrickColor.new("Flint") and (v.Position-api.humanoidrootpart().Position).magnitude < 40 and kometa.toggles.autofarm and kometa.toggles.collectcrosshairs and not temptable.converting then
+                if #temptable.crosshairs <= 3 then
+                    table.insert(temptable.crosshairs, v)
+                    getcrosshairs(v)
+                    gettoken()
+                end
+            end
+        elseif v.Name == "DustBunnyInstance" then
+            task.wait(.1)
+            if v:FindFirstChild("Plane") then
+                if kometa.toggles.farmfuzzy and kometa.toggles.autofarm and tonumber((v.Plane.Position-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude) < 40 then
+                    table.insert(temptable.FuzzyBombs, v)
+                    getfuzzy(v)
+                end
+            end
+        end
+    end
+end)
 function findclosestflame()
     local root = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
     if root == nil then return end
@@ -663,7 +681,7 @@ end
 Workspace.Particles.ChildAdded:Connect(function(instance)
     if string.find(instance.Name, "Vicious") then
         bounty.toggles.ViciousDetected = true
-       
+        --if kometa.webhooking.vicious then api.imagehook(kometawebhook.webhook, "Vicious Bee detected!", "kometa â˜„ï¸", "https://static.wikia.nocookie.net/bee-swarm-simulator/images/1/1f/Vicious_Bee.png/revision/latest/scale-to-width-down/350?cb=20181130115012&path-prefix=ru") end
     end
 end)
 Workspace.Particles.ChildRemoved:Connect(function(instance)
@@ -1027,45 +1045,10 @@ for i,v in pairs(Menus:GetChildren()) do
 	end
 end
 
-function findflower()
-    local flowerrrr = flowertable[math.random(#flowertable)]
-    if tonumber((flowerrrr.Position-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude) <= 50 and tonumber((flowerrrr-fieldposition).magnitude) <= 50 then 
-        if temptable.running == false then
-            plr.Character.Humanoid:MoveTo(flowerrrr)
-        end 
-    end
-end
-
 spawn(function()
 	while wait() do
 		if bounty.toggles.autofarm then
-			if game.Players.LocalPlayer.Character:FindFirstChild("ProgressLabel",true) then
-	        local pollenprglbl = game.Players.LocalPlayer.Character:FindFirstChild("ProgressLabel",true)
-	        local maxpollen = tonumber(pollenprglbl.Text:match("%d+$"))
-	        local pollencount = game.Players.LocalPlayer.CoreStats.Pollen.Value
-	        local pollenpercentage = pollencount/maxpollen*100
-	        local fieldselected = game:GetService("Workspace").FlowerZones[bounty.field]
-	        local fieldpos = CFrame.new(fieldselected.Position.X, fieldselected.Position.Y+3, fieldselected.Position.Z)
-       		local fieldposition = fieldselected.Position
-       		if tonumber(pollenpercentage) < tonumber(bounty.convertat) then
-       			if not bounty.tembs.tokensfarm then
-       				tweens(1, fieldpos)
-       				bounty.tembs.tokensfarm = true
-       			else
-       				if (fieldposition-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude > temptable.magnitude then
-                   		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = fieldpos.CFrame
-                    	--if bounty.toggles.autosprinkler then makesprinklers() end
-               		end
-               		--if bounty.toggles.avoidmobs then avoidmob() end
-	                --if bounty.toggles.farmclosestleaf then closestleaf() end
-	                --if bounty.toggles.farmbubbles then getbubble() end
-	                --if bounty.toggles.farmclouds then getcloud() end
-       			end
-       		elseif tonumber(pollenpercentage) >= tonumber(bounty.convertat) then
-       			bounty.tembs.tokensfarm = false
-       			tweens(1, plr.SpawnPos.Value * CFrame.fromEulerAnglesXYZ(0, 110, 0) + Vector3.new(0, 0, 9))
-       			bounty.tembs.converting = true
-       		end
+
 		end
 	end
 end)
